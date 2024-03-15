@@ -10,6 +10,7 @@ fi
 VER=$(rustc --version --verbose | grep 'LLVM' | awk '{ print $3}')
 if [ ! -d llvm ]; then
 	mkdir llvm
+	cd llvm
 	set -x
 	export \
 		URL="https://github.com/llvm/llvm-project/releases/download/llvmorg-$VER/llvm-project-$VER.src.tar.xz" \
@@ -28,7 +29,7 @@ if [ ! -d llvm ]; then
 
 	cd release-build
 	make -j8
-	cd ../..
+	cd ../../..
 fi
 
 BIN_PATH=$(realpath "./llvm/llvm-project-$VER.src/release-build/bin")
