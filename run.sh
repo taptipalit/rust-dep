@@ -1,31 +1,81 @@
 #!/bin/bash
 
-if [ ! -f llvm ]; then
-	mkdir llvm
+which rustc
+
+if [ $? -ne 0 ]; then
+	echo "Please install Rust. Exiting now ... "
+	exit -1
 fi
 
-cd llvm
+VER=$(rustc --version --verbose | grep 'LLVM' | awk '{ print $3}')
+if [ ! -d llvm ]; then
+	mkdir llvm
+	set -x
+	export \
+		URL="https://github.com/llvm/llvm-project/releases/download/llvmorg-$VER/llvm-project-$VER.src.tar.xz" \
+		&& export LLVM_ARCHIVE="llvm-project-$VER.src.tar.xz" \
+		&& export LLVM_SRC="llvm-project-$VER.src" \
+		&& wget $URL
 
-rustc --version --verbose | grep 'LLVM' | awk '{ print $3}' \
-  |	xargs echo \
-	"https://github.com/llvm/llvm-project/releases/download/llvmorg-$1/llvm-$1.src.tar.xz" \
-	| export LLVM_ARCHIVE="llvm-$1.src.tar.xz" \
-	| export LLVM_SRC="llvm-project-$1.src" \
-	| wget $1
+	tar Jxvf $LLVM_ARCHIVE
 
-tar Jxvf $LLVM_ARCHIVE
+	cd $LLVM_SRC
 
-cd $LLVM_SRC
+	cmake -S llvm -B release-build -G "Unix Makefiles" \
+		-DCMAKE_BUILD_TYPE=Release \
+		-DLLVM_ENABLE_DUMP=ON -DLLVM_ENABLE_FFI=ON \
+		-DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld" 
 
-cmake -S llvm -B release-build -G "Unix Makefiles" \
-	-DCMAKE_BUILD_TYPE=Release \
-  -DLLVM_ENABLE_DUMP=ON -DLLVM_ENABLE_FFI=ON \
-  -DLLVM_ENABLE_PROJECTS="clang;compiler-rt;lld" 
+	cd release-build
+	make -j8
+	cd ../..
+fi
 
-cd release-build
-make -j8
+BIN_PATH=$(realpath "./llvm/llvm-project-$VER.src/release-build/bin")
 
-if [ ! -f projects ]; then
+# Add LLVM to PATH
+export PATH="/home/tpalit/.cargo/bin:$BIN_PATH:$PATH"
+export LLVM_DIR="$BIN_PATH"
+export LLVM_HOME="$BIN_PATH"
+
+if [ ! -d projects ]; then
 	mkdir projects
 fi
+
+cd projects
+
+if [ ! -d ripgrep ]; then
+	git clone https://github.com/BurntSushi/ripgrep.git
+	cd ripgrep
+else
+	cd ripgrep
+	git pull
+fi
+
+cargo rustc -- --emit=llvm-ir
+
+cd ../..
+if [ ! -d bitcodes ]; then
+	mkdir bitcodes
+fi
+find . -name "rg-*.ll" -exec cp {} ./bitcodes \;
+
+cd bitcodes
+
+find . -type f -name "rg-*.ll" -print0 | while IFS= read -r -d '' file; do
+  rustfilt < "$file" > "$file.processed"
+done
+
+cd ..
+
+# Build the pass
+mkdir pass-build
+cd pass-build
+cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR $(realpath ../callgraph-pass/HelloWorld/)
+make
+
+cd ../
+# Run the pass
+opt -load-pass-plugin ./pass-build/libHelloWorld.so -passes=hello-world -disable-output \
+	bitcodes/rg-*.ll
 
