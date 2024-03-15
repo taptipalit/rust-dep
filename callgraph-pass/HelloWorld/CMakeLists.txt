@@ -35,7 +35,8 @@ endif()
 #===============================================================================
 add_library(HelloWorld SHARED HelloWorld.cpp)
 
+target_link_libraries(HelloWorld PRIVATE icuuc icui18n)
 # Allow undefined symbols in shared objects on Darwin (this is the default
 # behaviour on Linux)
-target_link_libraries(HelloWorld
-  "$<$<PLATFORM_ID:Darwin>:-undefined dynamic_lookup>")
+# target_link_libraries(HelloWorld
+#   "$<$<PLATFORM_ID:Darwin>:-undefined dynamic_lookup>")

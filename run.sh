@@ -72,6 +72,7 @@ cd ..
 echo $PWD
 
 # Build the pass
+rm -rf pass-build
 mkdir pass-build
 cd pass-build
 cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR $(realpath ../callgraph-pass/HelloWorld/)
@@ -82,4 +83,7 @@ which opt
 cd ../
 # Run the pass
 opt -load-pass-plugin ./pass-build/libHelloWorld.so -passes=hello-world -disable-output \
-	bitcodes/rg-*.ll > callgraph.json
+	bitcodes/rg-*.ll > callgraph.csv
+
+# Convert CSV to JSON
+python3 parseJson.py
