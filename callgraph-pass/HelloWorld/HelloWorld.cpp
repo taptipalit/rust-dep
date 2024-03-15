@@ -16,13 +16,17 @@
 //
 // License: MIT
 //=============================================================================
-#include "llvm/IR/LegacyPassManager.h"
 #include "llvm/Passes/PassBuilder.h"
 #include "llvm/Passes/PassPlugin.h"
 #include "llvm/Support/raw_ostream.h"
+#include "llvm/Support/JSON.h"
+#include <unicode/ustream.h>
+#include <unicode/unistr.h>
+
 
 using namespace llvm;
 
+using namespace llvm::json;
 //-----------------------------------------------------------------------------
 // HelloWorld implementation
 //-----------------------------------------------------------------------------
@@ -30,10 +34,64 @@ using namespace llvm;
 // everything in an anonymous namespace.
 namespace {
 
+json::Object createJsonCallInst(Function &F, CallInst &CI) {
+	json::Object J;
+
+	icu::UnicodeString parentName = icu::UnicodeString::fromUTF8(F.getName().str().c_str());
+	parentName.findAndReplace("$LT$", u"<");
+	parentName.findAndReplace("$GT$", u">");
+	parentName.findAndReplace("$u20$", u" ");
+
+	std::string parentNameUTF;
+	parentName.toUTF8String(parentNameUTF);
+
+	J.try_emplace("parent_function", parentNameUTF);
+	J.try_emplace("parent_function_arg_count", F.arg_size());
+	Function *Callee = CI.getCalledFunction();
+	if (Callee) {
+		icu::UnicodeString functionName = icu::UnicodeString::fromUTF8(Callee->getName().str().c_str());
+		functionName.findAndReplace("$LT$", u"<");
+		functionName.findAndReplace("$GT$", u">");
+		functionName.findAndReplace("$u20$", u" ");
+
+		std::string functionNameUTF;
+		functionName.toUTF8String(functionNameUTF);
+		J.try_emplace("called_function", functionNameUTF);
+		J.try_emplace("called_function_arg_count", Callee->arg_size());
+	}/* else {
+		J.try_emplace("called_function", "indirect");
+		J.try_emplace("called_function_arg_count", -1);
+	}
+	*/
+	return J;
+}
+
 // This method implements what the pass does
 void visitor(Function &F) {
-    errs() << "(llvm-tutor) Hello from: "<< F.getName() << "\n";
-    errs() << "(llvm-tutor)   number of arguments: " << F.arg_size() << "\n";
+	// Create a JSON array to store all CallInsts
+	json::Array CallInstArray;
+
+	// Iterate over all instructions in the function
+	for (auto &BB : F) {
+		for (auto &I : BB) {
+			// Check if the instruction is a CallInst
+			if (auto *CI = dyn_cast<CallInst>(&I)) {
+
+				// Print the target of the CallInst
+				if (Function *Callee = CI->getCalledFunction()) {
+				errs() << "CallInst target: " << Callee->getName() << "\n";
+				}
+				/*
+				// Create JSON object for CallInst
+				json::Object CallInstJson = createJsonCallInst(F, *CI);
+				// Add JSON object to the array
+				CallInstArray.push_back(std::move(CallInstJson));
+				*/
+			}
+		}
+	}
+	// Print the JSON array
+	//llvm::outs() << json::Value(std::move(CallInstArray)) << "\n";
 }
 
 // New PM implementation
@@ -41,7 +99,9 @@ struct HelloWorld : PassInfoMixin<HelloWorld> {
   // Main entry point, takes IR unit to run the pass on (&F) and the
   // corresponding pass manager (to be queried if need be)
   PreservedAnalyses run(Function &F, FunctionAnalysisManager &) {
+		llvm::outs() << "{";
     visitor(F);
+		llvm::outs() << "}";
     return PreservedAnalyses::all();
   }
 

@@ -68,14 +68,17 @@ done
 
 cd ..
 
+echo $PWD
+
 # Build the pass
 mkdir pass-build
 cd pass-build
 cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR $(realpath ../callgraph-pass/HelloWorld/)
 make
 
+echo $PWD
+which opt
 cd ../
 # Run the pass
 opt -load-pass-plugin ./pass-build/libHelloWorld.so -passes=hello-world -disable-output \
-	bitcodes/rg-*.ll
-
+	bitcodes/rg-*.ll > callgraph.json
