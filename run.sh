@@ -75,14 +75,14 @@ echo $PWD
 rm -rf pass-build
 mkdir pass-build
 cd pass-build
-cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR $(realpath ../callgraph-pass/HelloWorld/)
+cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR $(realpath ../callgraph-pass/Callgraph/)
 make
 
 echo $PWD
 which opt
 cd ../
 # Run the pass
-opt -load-pass-plugin ./pass-build/libHelloWorld.so -passes=hello-world -disable-output \
+opt -load-pass-plugin ./pass-build/libCallgraph.so -passes=hello-world -disable-output \
 	bitcodes/rg-*.ll > callgraph.csv
 
 # Convert CSV to JSON
