@@ -56,6 +56,7 @@ fi
 cargo rustc -- --emit=llvm-ir
 
 cd ../..
+rm bitcodes/*
 if [ ! -d bitcodes ]; then
 	mkdir bitcodes
 fi

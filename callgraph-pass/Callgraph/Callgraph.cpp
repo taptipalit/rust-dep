@@ -46,6 +46,7 @@ struct Entry createJsonCallInst(Function &F, CallInst &CI) {
 
 	icu::UnicodeString parentName = icu::UnicodeString::fromUTF8(F.getName().str().c_str());
 
+	/*
 	// Hack for weird Unicode symbol names
 	if (F.getName().str().find("$") != std::string::npos) {
 		parentName.findAndReplace("$LT$", u"<");
@@ -57,6 +58,7 @@ struct Entry createJsonCallInst(Function &F, CallInst &CI) {
 		parentName.findAndReplace("$RT$", u"RT");
 		parentName.findAndReplace("..", u"::");
 	}
+	*/
 
 	std::string parentNameUTF;
 	parentName.toUTF8String(parentNameUTF);
@@ -67,6 +69,7 @@ struct Entry createJsonCallInst(Function &F, CallInst &CI) {
 	if (Callee) {
 		icu::UnicodeString functionName = icu::UnicodeString::fromUTF8(Callee->getName().str().c_str());
 
+		/*
 		// Hack for weird Unicode symbol names
 		if (Callee->getName().str().find("$") != std::string::npos) {
 			functionName.findAndReplace("$LT$", u"<");
@@ -78,6 +81,7 @@ struct Entry createJsonCallInst(Function &F, CallInst &CI) {
 			functionName.findAndReplace("$RT$", u"RT");
 			functionName.findAndReplace("..", u"::");
 		}
+		*/
 		/*
 		functionName.findAndReplace("$GT$", u">");
 		functionName.findAndReplace("$u20$", u" ");

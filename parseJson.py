@@ -1,18 +1,34 @@
 import csv
 import json
 import subprocess
+import os
+import re
+
+function_map = {}
+
+def parse_ll_file(ll_filename):
+    with open(ll_filename, 'r') as f:
+        comment = None
+        for line in f:
+            line = line.strip()
+            if line.startswith('; <'):
+                comment = line[1:].strip()
+            elif comment and line.startswith('define'):
+                regex_pattern = r'@"([^"]+)"'
+                match = re.search(regex_pattern, line)
+                if match:
+                    function_name = match.group(1)
+                    function_map[function_name] = comment
+                    print(function_name + " -> " + comment)
+                else:
+                    print("No match for : " + comment)
+                comment = None
 
 def demangle_function_name(name):
-    try:
-        demangled_name = subprocess.check_output(['rustfilt', name.strip()]).decode('utf-8')
-        """
-        print(demangled_name)
-        if name.strip() != demangled_name.strip():
-            print("Demangled " + name + " to " + demangled_name)
-        """
-        return demangled_name
-    except subprocess.CalledProcessError:
-        print("Error")
+    if name in function_map:
+        return function_map[name]
+    else:
+        print("Not found " + name)
         return name
 
 def parse_csv_to_json(input_file, output_file):
@@ -40,7 +56,16 @@ def parse_csv_to_json(input_file, output_file):
     with open(output_file, 'w') as jsonfile:
         json.dump(data, jsonfile, indent=4)
 
+def find_first_ll_file(directory):
+    for root, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".ll"):
+                return os.path.join(root, file)
+    return None  # No .ll file found in the directory
+
 # Example usage
-parse_csv_to_json('callgraph.json', 'output.json')
+ll_file = find_first_ll_file("bitcodes")
+parse_ll_file(ll_file)
+parse_csv_to_json('callgraph.csv', 'callgraph.json')
 # print(demangle_function_name("_ZN4core4iter6traits8iterator8Iterator3nth17hee7f48fb893e6816E"))
 
