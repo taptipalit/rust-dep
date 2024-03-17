@@ -29,8 +29,12 @@ def demangle_function_name(name):
         return function_map[name]
     else:
         # print("Not found " + name)
-        return name.replace("..", "::").replace("$LT$", "<").replace("$GT$",
+        new_name = name.replace("..", "::").replace("$LT$", "<").replace("$GT$",
                  ">").replace("$u20$", " ")
+        if name == new_name:
+            new_name = subprocess.check_output(['rustfilt',
+                new_name.strip()]).decode('utf-8')
+        return new_name
 
 def parse_csv_to_json(input_file, output_file):
     data = []
