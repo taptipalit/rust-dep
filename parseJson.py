@@ -19,7 +19,7 @@ def parse_ll_file(ll_filename):
                 if match:
                     function_name = match.group(1)
                     function_map[function_name] = comment
-                    print(function_name + " -> " + comment)
+                    # print(function_name + " -> " + comment)
                 else:
                     print("No match for : " + comment)
                 comment = None
@@ -28,7 +28,7 @@ def demangle_function_name(name):
     if name in function_map:
         return function_map[name]
     else:
-        print("Not found " + name)
+        # print("Not found " + name)
         return name
 
 def parse_csv_to_json(input_file, output_file):
