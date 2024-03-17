@@ -29,7 +29,8 @@ def demangle_function_name(name):
         return function_map[name]
     else:
         # print("Not found " + name)
-        return name
+        return name.replace("..", "::").replace("$LT$", "<").replace("$GT$",
+                 ">").replace("$u20$", " ")
 
 def parse_csv_to_json(input_file, output_file):
     data = []
