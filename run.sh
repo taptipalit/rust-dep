@@ -3,7 +3,8 @@
 which rustc
 
 if [ $? -ne 0 ]; then
-	sudo apt install rustc
+	echo "Rust not found. Can't proceed"
+	exit -1
 fi
 
 VER=$(rustc --version --verbose | grep 'LLVM' | awk '{ print $3}')
