@@ -1,5 +1,8 @@
 #!/bin/bash
 
+### Builds the LLVM compiler and the Callgraph pass
+### Also compiles the ripgrep tool to generate the bitcode
+
 which rustc
 
 if [ $? -ne 0 ]; then
@@ -80,5 +83,27 @@ cargo rustc -- --emit=llvm-ir
 
 cd ../..
 
+rm bitcodes/*
+if [ ! -d bitcodes ]; then
+	mkdir bitcodes
+fi
+find . -name "rg-*.ll" -exec cp {} ./bitcodes \;
+
+cd bitcodes
+
+find . -type f -name "rg-*.ll" -print0 | while IFS= read -r -d '' file; do
+  rustfilt < "$file" > "$file.processed"
+done
+
+cd ..
+
+echo $PWD
+
+# Build the pass
+rm -rf pass-build
+mkdir pass-build
+cd pass-build
+cmake -DLT_LLVM_INSTALL_DIR=$LLVM_DIR $(realpath ../callgraph-pass/Callgraph/)
+make
 
 

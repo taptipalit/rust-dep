@@ -9,8 +9,8 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     libedit-dev swig libncurses5-dev python-dev-is-python3 cmake build-essential \
     swig libncurses5-dev \
-    libgmp-dev libmpfr-dev git ssh vim texinfo flex bison rustc wget cargo
-		
+    libgmp-dev libmpfr-dev git ssh vim texinfo flex bison rustc wget cargo \
+		libicu-dev rustfilt
 
 # Set the default command for the container
 
