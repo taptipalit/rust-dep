@@ -46,6 +46,8 @@ if [ ! -d llvm ]; then
 	cd ../../..
 fi
 
+
+exit 0
 BIN_PATH=$(realpath "./llvm/llvm-project-$VER.src/release-build/bin")
 
 # Add LLVM to PATH
@@ -59,7 +61,6 @@ fi
 
 cd projects
 
-exit 0
 if [ ! -d ripgrep ]; then
 	git clone https://github.com/BurntSushi/ripgrep.git
 	cd ripgrep
