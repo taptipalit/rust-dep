@@ -59,6 +59,7 @@ fi
 
 cd projects
 
+exit 0
 if [ ! -d ripgrep ]; then
 	git clone https://github.com/BurntSushi/ripgrep.git
 	cd ripgrep
