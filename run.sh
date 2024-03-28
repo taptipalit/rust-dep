@@ -3,8 +3,7 @@
 which rustc
 
 if [ $? -ne 0 ]; then
-	echo "Please install Rust. Exiting now ... "
-	exit -1
+	sudo apt install rustc
 fi
 
 VER=$(rustc --version --verbose | grep 'LLVM' | awk '{ print $3}')
