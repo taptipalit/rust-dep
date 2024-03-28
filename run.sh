@@ -47,7 +47,6 @@ if [ ! -d llvm ]; then
 fi
 
 
-exit 0
 BIN_PATH=$(realpath "./llvm/llvm-project-$VER.src/release-build/bin")
 
 # Add LLVM to PATH
@@ -69,6 +68,7 @@ else
 	git pull
 fi
 
+exit 0
 cargo rustc -- --emit=llvm-ir
 
 cd ../..
