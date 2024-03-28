@@ -15,7 +15,6 @@ cd gold-build
 ../binutils/configure --enable-gold --enable-plugins --disable-werror
 make all-gold -j8
 
-exit 0
 
 cd ..
 # change the system-wide linker after backing it up
