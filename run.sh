@@ -7,6 +7,19 @@ if [ $? -ne 0 ]; then
 	exit -1
 fi
 
+# We need gold linker to link it without crapping out due to memory
+
+git clone --depth 1 git://sourceware.org/git/binutils-gdb.git binutils
+mkdir gold-build
+cd gold-build
+../binutils/configure --enable-gold --enable-plugins --disable-werror
+make all-gold -j8
+
+cd ..
+# change the system-wide linker after backing it up
+mv /usr/bin/ld /usr/bin/ld-bkup
+ln -s "$(realpath ./gold-build/gold/ld-new)" /usr/bin/ld
+
 VER=$(rustc --version --verbose | grep 'LLVM' | awk '{ print $3}')
 if [ ! -d llvm ]; then
 	mkdir llvm
