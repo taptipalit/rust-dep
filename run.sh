@@ -54,9 +54,9 @@ export PATH="/home/tpalit/.cargo/bin:$BIN_PATH:$PATH"
 export LLVM_DIR="$BIN_PATH"
 export LLVM_HOME="$BIN_PATH"
 
-echo "export PATH=\"/home/tpalit/.cargo/bin:$BIN_PATH:$PATH\"" > ~/.bashrc
-echo "export LLVM_DIR=\"$BIN_PATH\"" > ~/.bashrc
-echo "export LLVM_HOME=\"$BIN_PATH\"" > ~/.bashrc
+echo "export PATH=\"/home/tpalit/.cargo/bin:$BIN_PATH:$PATH\"" >> ~/.bashrc
+echo "export LLVM_DIR=\"$BIN_PATH\"" >> ~/.bashrc
+echo "export LLVM_HOME=\"$BIN_PATH\"" >> ~/.bashrc
 
 source ~/.bashrc
 
