@@ -16,6 +16,20 @@
 
 This generates the output in `callgraph.json`.
 
+### Analyze a new application
+
+1. Git clone the repo and `cd` into it. 
+
+2. Run `cargo rustc -- --emit=llvm-ir`. This will generate a `<APP_NAME>.ll`
+	 file in the `target/debug/...` directory.
+
+3. Replace the bitcode in `../bitcodes/` directory with this `<APP_NAME>.ll`
+	 file. 
+
+4. Run `analyze.sh` again.
+
+[TODO: Support multiple bitcode files]
+
 ## Option 2: Build the toolchain on local machine
 ### Generate callgraph 
 
