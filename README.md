@@ -1,5 +1,22 @@
 ## Framework for static program analysis for Rust
 
+## Option 1: Use the Docker container
+
+1. Pull the container image.
+
+`docker pull taptipalit/rust-dep`
+
+2. Launch the container
+
+`docker run -it taptipalit/rust-dep:latest bash` 
+
+3. Run the analysis
+
+`./analyze.sh`
+
+This generates the output in `callgraph.json`.
+
+## Option 2: Build the toolchain on local machine
 ### Generate callgraph 
 
 Prerequisite: The Rust compiler toolchain is installed on the system. 
